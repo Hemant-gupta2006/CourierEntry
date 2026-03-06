@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Courier Management System",
-  description: "Simple courier entry and Excel export system",
-  viewport: "width=device-width, initial-scale=1",
+  description: "Simple courier entry and Excel export system"
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1
 };
 
 export default function RootLayout({ children }) {

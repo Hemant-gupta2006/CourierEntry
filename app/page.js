@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 
-
 export default function Home() {
 
   const [couriers, setCouriers] = useState([]);
@@ -29,6 +28,7 @@ export default function Home() {
   const amountRef = useRef();
   const statusRef = useRef();
   const modeRef = useRef();
+  const addBtnRef = useRef();
 
   const inputStyle = {
     height: 40,
@@ -67,10 +67,7 @@ export default function Home() {
   }
 
   async function deleteCourier(id) {
-    await fetch(`/api/delete-courier/${id}`, {
-      method: "DELETE"
-    });
-
+    await fetch(`/api/delete-courier/${id}`, { method: "DELETE" });
     loadCouriers();
   }
 
@@ -105,11 +102,7 @@ export default function Home() {
 
         <form
           onSubmit={submit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: 12 }}
         >
 
           <input
@@ -117,7 +110,12 @@ export default function Home() {
             type="date"
             value={data.date}
             onChange={e => setData({ ...data, date: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && challanRef.current.focus()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                challanRef.current.focus();
+              }
+            }}
           />
 
           <input
@@ -126,7 +124,12 @@ export default function Home() {
             placeholder="Challan No (optional)"
             value={data.challanNo}
             onChange={e => setData({ ...data, challanNo: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && fromRef.current.focus()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                fromRef.current.focus();
+              }
+            }}
           />
 
           <input
@@ -136,7 +139,21 @@ export default function Home() {
             placeholder="From Party"
             value={data.senderName}
             onChange={e => setData({ ...data, senderName: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && toRef.current.focus()}
+            onKeyDown={(e) => {
+
+              if (e.key === "Tab") {
+                const match = partySuggestions.find(p =>
+                  p.toLowerCase().startsWith(data.senderName.toLowerCase())
+                );
+                if (match) setData(prev => ({ ...prev, senderName: match }));
+              }
+
+              if (e.key === "Enter") {
+                e.preventDefault();
+                toRef.current.focus();
+              }
+
+            }}
           />
 
           <datalist id="partyList">
@@ -151,7 +168,12 @@ export default function Home() {
             placeholder="To Party"
             value={data.receiverName}
             onChange={e => setData({ ...data, receiverName: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && destinationRef.current.focus()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                destinationRef.current.focus();
+              }
+            }}
           />
 
           <input
@@ -161,7 +183,21 @@ export default function Home() {
             placeholder="Destination"
             value={data.address}
             onChange={e => setData({ ...data, address: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && weightRef.current.focus()}
+            onKeyDown={(e) => {
+
+              if (e.key === "Tab") {
+                const match = destinationSuggestions.find(d =>
+                  d.toLowerCase().startsWith(data.address.toLowerCase())
+                );
+                if (match) setData(prev => ({ ...prev, address: match }));
+              }
+
+              if (e.key === "Enter") {
+                e.preventDefault();
+                weightRef.current.focus();
+              }
+
+            }}
           />
 
           <datalist id="destinationList">
@@ -176,7 +212,12 @@ export default function Home() {
             placeholder="Weight"
             value={data.weight}
             onChange={e => setData({ ...data, weight: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && amountRef.current.focus()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                amountRef.current.focus();
+              }
+            }}
           />
 
           <input
@@ -185,7 +226,12 @@ export default function Home() {
             placeholder="Amount"
             value={data.amount}
             onChange={e => setData({ ...data, amount: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && statusRef.current.focus()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                statusRef.current.focus();
+              }
+            }}
           />
 
           <select
@@ -193,7 +239,28 @@ export default function Home() {
             style={inputStyle}
             value={data.status}
             onChange={e => setData({ ...data, status: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && modeRef.current.focus()}
+            onKeyDown={(e) => {
+
+              if (e.key === "Tab") {
+                e.preventDefault();
+
+                const options = ["Cash", "Account"];
+                const index = options.indexOf(data.status);
+
+                const next = (index + 1) % options.length;
+
+                setData(prev => ({
+                  ...prev,
+                  status: options[next]
+                }));
+              }
+
+              if (e.key === "Enter") {
+                e.preventDefault();
+                modeRef.current.focus();
+              }
+
+            }}
           >
             <option>Cash</option>
             <option>Account</option>
@@ -204,6 +271,27 @@ export default function Home() {
             style={inputStyle}
             value={data.transportMode}
             onChange={e => setData({ ...data, transportMode: e.target.value })}
+            onKeyDown={(e) => {
+
+              if (e.key === "Tab") {
+                e.preventDefault();
+
+                const options = ["Surface", "Air", "Cargo", "V Fast"];
+                const index = options.indexOf(data.transportMode);
+                const next = (index + 1) % options.length;
+
+                setData(prev => ({
+                  ...prev,
+                  transportMode: options[next]
+                }));
+              }
+
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addBtnRef.current?.focus();
+              }
+
+            }}
           >
             <option>Surface</option>
             <option>Air</option>
@@ -211,7 +299,7 @@ export default function Home() {
             <option>V Fast</option>
           </select>
 
-          <button className="addBtn" type="submit">
+          <button className="addBtn" ref={addBtnRef} type="submit">
             Add Courier
           </button>
 
@@ -254,29 +342,21 @@ export default function Home() {
             <tr key={c._id}>
 
               <td>{index + 1}</td>
-
-              <td>
-                {c.date ? new Date(c.date).toLocaleDateString() : ""}
-              </td>
-
+              <td>{c.date ? new Date(c.date).toLocaleDateString() : ""}</td>
               <td>{c.challanNo}</td>
-
               <td>{c.senderName}</td>
-
               <td>{c.receiverName}</td>
-
               <td>{c.weight}</td>
-
               <td>{c.address}</td>
-
               <td>{c.amount}</td>
-
               <td>{c.status}</td>
-
               <td>{c.transportMode}</td>
 
               <td>
-                <button className="deleteBtn" onClick={() => deleteCourier(c._id)}>
+                <button
+                  className="deleteBtn"
+                  onClick={() => deleteCourier(c._id)}
+                >
                   Delete
                 </button>
               </td>
@@ -292,4 +372,5 @@ export default function Home() {
     </div>
 
   );
+
 }
